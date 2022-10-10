@@ -17,11 +17,17 @@
         android:visibility="visible">
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recylerView"
+
+        <GridView
             android:layout_width="match_parent"
-            android:layout_marginLeft="15dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:id="@+id/gridView"
+            android:numColumns="2"
+            android:stretchMode="spacingWidthUniform"
+            android:columnWidth="150dp"
+            android:verticalSpacing="10dp"
+            android:gravity="center"/>
+
         <androidx.cardview.widget.CardView
             android:layout_width="200dp"
             android:layout_height="120dp"

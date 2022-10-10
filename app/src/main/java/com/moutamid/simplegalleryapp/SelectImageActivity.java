@@ -12,21 +12,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.moutamid.simplegalleryapp.Adapters.ImageListAdapter;
 import com.moutamid.simplegalleryapp.Adapters.SelectedImageListAdapter;
 import com.moutamid.simplegalleryapp.Listener.ItemClickListener;
+import com.moutamid.simplegalleryapp.Listener.ItemLongClickListener;
 import com.moutamid.simplegalleryapp.Model.ImagesModel;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,13 +33,14 @@ public class SelectImageActivity extends AppCompatActivity {
     private CardView menuCard;
     private TextView shareBtn,deleteBtn,slideshowBtn,selectBtn,selectAllBtn,cancelBtn;
     private ArrayList<ImagesModel> imagesModelArrayList;
-    private RecyclerView recyclerView;
+    private GridView gridView;
     private ImageView menuImg;
     private SelectedImageListAdapter obj_adapter;
     private ImagesModel imagesModel;
     private boolean menuSelect = false;
     private boolean selectAll = false;
     private int pos = 0;
+    private boolean longPress = false;
     private ArrayList<ImagesModel> modelArrayList = new ArrayList<>();
 
     @Override
@@ -50,8 +48,8 @@ public class SelectImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_image);
         imagesModelArrayList = new ArrayList<>();
-        recyclerView = findViewById(R.id.recylerView);
-        recyclerView.setLayoutManager(new GridLayoutManager(SelectImageActivity.this,2));
+        gridView = findViewById(R.id.gridView);
+     //   recyclerView.setLayoutManager(new GridLayoutManager(SelectImageActivity.this,2));
         menuImg = findViewById(R.id.menu);
         selectBtn = findViewById(R.id.select);
         cancelBtn = findViewById(R.id.cancel);
@@ -203,17 +201,20 @@ public class SelectImageActivity extends AppCompatActivity {
         });
 
         obj_adapter = new SelectedImageListAdapter(SelectImageActivity.this, imagesModelArrayList);
-        recyclerView.setAdapter(obj_adapter);
-        obj_adapter.setItemClickListener(new ItemClickListener() {
+        gridView.setAdapter(obj_adapter);
+
+        obj_adapter.setItemLongClickListener(new ItemLongClickListener() {
             @Override
             public void onItemClick(int position, ImageView imageView) {
-                pos = position;
-                menuSelect = true;
-                imageView.setVisibility(View.VISIBLE);
-                imagesModel = imagesModelArrayList.get(position);
-                modelArrayList.add(imagesModel);
+                longPress = true;
+            //    imagesModel = imagesModelArrayList.get(position);
+              //  menuSelect = true;
+               // imageView.setVisibility(View.VISIBLE);
+                //modelArrayList.add(imagesModel);
             }
         });
+
+
         obj_adapter.notifyDataSetChanged();
     }
 

@@ -6,12 +6,17 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,9 +28,11 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,6 +41,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.moutamid.simplegalleryapp.Adapters.SlideViewPagerAdapter;
+import com.moutamid.simplegalleryapp.Listener.LoopingPagerAdapter;
 import com.moutamid.simplegalleryapp.Model.ImagesModel;
 import com.yalantis.ucrop.UCrop;
 
@@ -47,7 +56,7 @@ import java.util.UUID;
 
 public class FullImageActivity extends AppCompatActivity {
 
-    private ImageView imageView,menuImg;
+    private ImageView menuImg,imageView;
     private CardView detailsView,menuCard,editCard;
     private LinearLayout bottom_layout,rename_layout;
     private TextView editBtn,zoomBtn,shareBtn,deleteBtn,wallpaperBtn,cropBtn,rotateBtn,renameBtn,detailsBtn;
@@ -58,9 +67,14 @@ public class FullImageActivity extends AppCompatActivity {
     private float mScaleFactor = 1.0f;
     private boolean zoomImage = false;
     private boolean menuSelect = false;
+    private boolean detailSelect = false;
     private boolean menuEdit = false;
     private Bitmap rotatedBitmap = null;
     private Button applyBtn;
+    private ViewPager viewPager;
+    int pos = 0;
+    ArrayList<ImagesModel> modelArrayList = new ArrayList<>();
+    ArrayList<ImagesModel> imagesModelArrayList = new ArrayList<>();
     //private ActivityResultLauncher<String> mGetContent;
 
     @Override
@@ -68,7 +82,7 @@ public class FullImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_image);
         menuImg = findViewById(R.id.menu);
-        imageView = findViewById(R.id.imageView);
+      //  imageView = findViewById(R.id.imageView);
         editBtn = findViewById(R.id.edit);
         zoomBtn = findViewById(R.id.zoom);
         menuCard = findViewById(R.id.menuCard);
@@ -93,17 +107,25 @@ public class FullImageActivity extends AppCompatActivity {
         okBtn = findViewById(R.id.ok);
         cancelBtn = findViewById(R.id.cancel);
         renameEdit = findViewById(R.id.editTxt);
-        model = getIntent().getParcelableExtra("imageModel");
-        nameTxt.setText("Name: " + model.getName());
-        typeTxt.setText("Type: " + model.getType());
-        sizeTxt.setText("Size: " + model.getSize());
-        resolutionTxt.setText("Resolution: " + model.getResolution());
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis( model.getDate());
-        String date = DateFormat.format("dd-MM-yyyy", cal).toString();
-        dateTxt.setText("Date: " + date);
-        pathTxt.setText("Path: " + model.getPath());
-        Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
+        viewPager = findViewById(R.id.viewPager);
+        //model = getIntent().getParcelableExtra("imageModel");
+        modelArrayList = getIntent().getParcelableArrayListExtra("list");
+        pos = getIntent().getIntExtra("pos",0);
+        for (int i = pos ; i < modelArrayList.size(); i++){
+            //if (i < pos || i == pos || i > pos){
+       //         model = modelArrayList.get(i);
+                imagesModelArrayList.add(modelArrayList.get(i));
+            //}
+        }
+
+       // Toast.makeText(this, ""+ modelArrayList.size(), Toast.LENGTH_SHORT).show();
+        SwipeViewPagerAdapter adapter = new SwipeViewPagerAdapter(FullImageActivity.this,
+                imagesModelArrayList);
+        viewPager.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        imageView = adapter.image;
+
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -144,7 +166,9 @@ public class FullImageActivity extends AppCompatActivity {
                         imageView.getWidth()-20,
                         imageView.getHeight()-100,matrix,true);
                 bitmap.recycle();
-                applyBtn.setVisibility(View.VISIBLE);
+                File filePathLocal = new File(model.getPath());
+                saveFile(rotatedBitmap, filePathLocal);
+              //  applyBtn.setVisibility(View.VISIBLE);
             }
         });
 
@@ -197,6 +221,7 @@ public class FullImageActivity extends AppCompatActivity {
                 editCard.setVisibility(View.GONE);
                 detailsView.setVisibility(View.VISIBLE);
                 menuImg.setVisibility(View.GONE);
+                detailSelect = true;
             }
         });
 
@@ -232,8 +257,8 @@ public class FullImageActivity extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                refreshGallery(model.getPath());
                 menuCard.setVisibility(View.GONE);
+                showDeleteDialig(model.getPath());
                 //Toast.makeText(SelectImageActivity.this,imagesModel.getPath(),Toast.LENGTH_LONG).show();
             }
         });
@@ -252,9 +277,28 @@ public class FullImageActivity extends AppCompatActivity {
                 menuCard.setVisibility(View.GONE);
             }
         });
+
+        /*imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (menuSelect || menuEdit || detailSelect){
+                    menuCard.setVisibility(View.GONE);
+                    detailsView.setVisibility(View.GONE);
+                    editCard.setVisibility(View.GONE);
+                    menuImg.setVisibility(View.VISIBLE);
+                }
+            }
+        });*/
     }
 
-
+    private String getDropboxIMGSize(Uri uri){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+        return imageWidth+"x"+imageHeight;
+    }
 
     private void setWallpaperImage() {
         File file = new File(model.getPath());
@@ -355,6 +399,26 @@ public class FullImageActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(sharingIntent, "Share Image Using"));
     }
 
+    private void showDeleteDialig(String path){
+        AlertDialog.Builder builder = new AlertDialog.Builder(FullImageActivity.this);
+        builder.setTitle("Delete Image");
+        builder.setMessage("Do you want to delete this image?  ");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                refreshGallery(path);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
+    }
+
     public void refreshGallery(String path) {
         File file = new File(path);
         if (file.exists() && file.isFile()) {
@@ -414,6 +478,7 @@ public class FullImageActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NewApi")
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector){
@@ -429,7 +494,78 @@ public class FullImageActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startActivity(new Intent(FullImageActivity.this,MainActivity.class));
+  //      startActivity(new Intent(FullImageActivity.this,MainActivity.class));
         finish();
     }
+    public class SwipeViewPagerAdapter extends PagerAdapter implements LoopingPagerAdapter {
+
+        Context ctx;
+        ArrayList<ImagesModel> modelDataArrayList;
+        public ImageView image;
+
+        public SwipeViewPagerAdapter(Context ctx, ArrayList<ImagesModel> modelDataArrayList) {
+            this.ctx = ctx;
+            this.modelDataArrayList = modelDataArrayList;
+        }
+
+        @Override
+        public int getCount() {
+            return modelDataArrayList.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return view==object;
+        }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            LayoutInflater layoutInflater= (LayoutInflater) ctx.getSystemService(ctx.LAYOUT_INFLATER_SERVICE);
+            View view=layoutInflater.inflate(R.layout.slide_screen,container,false);
+            model = modelDataArrayList.get(position);
+            image =view.findViewById(R.id.imageView);
+            Glide.with(ctx).load(model.getPath()).into(image);
+
+            nameTxt.setText("Name: " + model.getName());
+            typeTxt.setText("Type: " + model.getType());
+            sizeTxt.setText("Size: " + model.getSize());
+            String resolution = getDropboxIMGSize(Uri.parse(model.getPath()));
+            resolutionTxt.setText("Resolution: " + resolution);
+
+            Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+            cal.setTimeInMillis( model.getDate());
+            String date = DateFormat.format("dd-MM-yyyy hh:mm aa", cal).toString();
+            dateTxt.setText("Date: " + date);
+            pathTxt.setText("Path: " + model.getPath());
+            //   Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
+            renameEdit.setText(model.getName());
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (menuSelect || menuEdit || detailSelect){
+                        menuCard.setVisibility(View.GONE);
+                        detailsView.setVisibility(View.GONE);
+                        editCard.setVisibility(View.GONE);
+                        menuImg.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+            container.addView(view);
+
+            return view;
+        }
+
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public int getRealCount() {
+            return modelDataArrayList.size();
+        }
+    }
+
 }

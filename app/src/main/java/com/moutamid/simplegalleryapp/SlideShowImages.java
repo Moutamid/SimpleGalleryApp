@@ -38,7 +38,6 @@ public class SlideShowImages extends AppCompatActivity {
 
         getDataWithCategory();
 
-
     }
 
     //Fetching Images and Videos from firebase data
@@ -50,10 +49,11 @@ public class SlideShowImages extends AppCompatActivity {
       //  Collections.shuffle(imagesModelArrayList);
         adapter = new SlideViewPagerAdapter(SlideShowImages.this,modelDataList);
         viewPager.setAdapter(adapter);
+        setupAutoPager();
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                setupAutoPager(position);
+                currentPage = position+1;
             }
 
             @Override
@@ -70,14 +70,14 @@ public class SlideShowImages extends AppCompatActivity {
     }
 
     //Swiping to next slide automatically
-    private void setupAutoPager(int pos) {
+    private void setupAutoPager() {
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                viewPager.setCurrentItem(pos+1);
+                viewPager.setCurrentItem(currentPage+1);
             }
-        },2000);
+        },3000);
        /* final Runnable update = new Runnable() {
             public void run()
             {
@@ -131,7 +131,7 @@ public class SlideShowImages extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startActivity(new Intent(SlideShowImages.this,MainActivity.class));
+     //   startActivity(new Intent(SlideShowImages.this,MainActivity.class));
         finish();
     }
 }

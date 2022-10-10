@@ -15,11 +15,18 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
 
-        <ImageView
+       <!-- <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter" />-->
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/viewPager">
+        </androidx.viewpager.widget.ViewPager>
 
         <androidx.cardview.widget.CardView
             android:layout_width="300dp"
@@ -255,7 +262,6 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
-
         </LinearLayout>
 
         <LinearLayout
@@ -282,13 +288,15 @@
                     android:gravity="center"/>
 
                 <EditText
-                    android:layout_width="200dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editTxt"
                     android:inputType="text"
                     android:gravity="center"
                     android:hint="Image name here!"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"/>
 
             </LinearLayout>
 

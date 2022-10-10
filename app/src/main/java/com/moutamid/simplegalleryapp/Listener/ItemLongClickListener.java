@@ -3,7 +3,7 @@ package com.moutamid.simplegalleryapp.Listener;
 import android.view.View;
 import android.widget.ImageView;
 
-public interface ItemClickListener {
+public interface ItemLongClickListener {
 
-    void onItemClick(int position, ImageView view,ImageView bigView);
+    void onItemClick(int position, ImageView view);
 }

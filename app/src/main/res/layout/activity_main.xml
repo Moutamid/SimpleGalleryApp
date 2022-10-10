@@ -14,12 +14,28 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/selectBox"
+            android:visibility="gone"/>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gridView"
+            android:numColumns="2"
+            android:stretchMode="spacingWidthUniform"
+            android:columnWidth="150dp"
+            android:layout_below="@+id/selectBox"
+            android:verticalSpacing="10dp"
+            android:gravity="center"/>
+
+       <!-- <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recylerView"
             android:layout_width="match_parent"
             android:layout_marginLeft="15dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" />-->
 
         <androidx.cardview.widget.CardView
             android:layout_width="200dp"
@@ -73,7 +89,7 @@
             android:id="@+id/menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/bottom"
+            android:layout_above="@+id/relativeLayout"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
@@ -82,42 +98,95 @@
             android:padding="10dp"
             android:src="@drawable/ic_baseline_menu_24" />
 
-        <LinearLayout
-            android:id="@+id/bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerVertical="true"
-            android:alpha="0.7"
-            android:background="@android:color/darker_gray"
-            android:orientation="horizontal"
-            android:padding="20dp">
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentBottom="true"
+          android:id="@+id/relativeLayout">
+          <LinearLayout
+              android:id="@+id/bottom"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:alpha="0.7"
+              android:background="@android:color/darker_gray"
+              android:orientation="horizontal"
+              android:padding="20dp">
 
-            <TextView
-                android:id="@+id/camera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Camera"
-                android:visibility="visible"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
+              <TextView
+                  android:id="@+id/camera"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Camera"
+                  android:visibility="visible"
+                  android:textColor="@android:color/white"
+                  android:textSize="20sp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+              <View
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/select"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
+              <TextView
+                  android:id="@+id/select"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Select"
+                  android:textColor="@android:color/white"
+                  android:textSize="20sp" />
 
 
-        </LinearLayout>
+          </LinearLayout>
 
+
+          <LinearLayout
+              android:id="@+id/select_layout"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:alpha="0.5"
+              android:visibility="gone"
+              android:background="@android:color/darker_gray"
+              android:orientation="horizontal"
+              android:padding="20dp">
+
+              <TextView
+                  android:id="@+id/selectAll"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Select All"
+                  android:textColor="@android:color/white"
+                  android:textSize="20sp" />
+
+              <View
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_weight="1" />
+
+              <TextView
+                  android:id="@+id/select1"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Select"
+                  android:textColor="@android:color/white"
+                  android:textSize="20sp" />
+
+              <View
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_weight="1" />
+
+
+              <TextView
+                  android:id="@+id/cancel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Cancel"
+                  android:textColor="@android:color/white"
+                  android:textSize="20sp" />
+
+          </LinearLayout>
+      </RelativeLayout>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
