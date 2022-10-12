@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -16,30 +18,24 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.moutamid.simplegalleryapp.Adapters.ImageListAdapter;
 import com.moutamid.simplegalleryapp.Adapters.SelectedImageListAdapter;
+import com.moutamid.simplegalleryapp.Adapters.SpacesItemDecoration;
 import com.moutamid.simplegalleryapp.Listener.ItemClickListener;
 import com.moutamid.simplegalleryapp.Listener.ItemLongClickListener;
 import com.moutamid.simplegalleryapp.Model.ImagesModel;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +43,7 @@ import java.util.Comparator;
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<ImagesModel> imagesModelArrayList;
-    private GridView gridView;
+    private RecyclerView recyclerView;
     private LinearLayout select_layout,bottom_layout;
     private ImageView menuImg;
     private TextView cameraBtn,selectBtn,selectionBtn,selectAllBtn,cancelBtn,shareBtn,deleteBtn,slideshowBtn;
@@ -56,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean menuSelect = false;
     private boolean selectAll = false;
     private int pos = 0;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private CheckBox checkBox;
     private boolean longPress = false;
     private CardView menuCard;
@@ -68,7 +65,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imagesModelArrayList = new ArrayList<>();
-        gridView = findViewById(R.id.gridView);
+        recyclerView = findViewById(R.id.recylerView);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        // recyclerView.setHasFixedSize(true);
+        SpacesItemDecoration itemDecoration = new SpacesItemDecoration(MainActivity.this,
+                R.dimen.item_offset);
+        recyclerView.addItemDecoration(itemDecoration);
+     //   recyclerView.addItemDecoration(new SpacesItemDecoration(50));
     //    recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
         bottom_layout = findViewById(R.id.bottom);
         select_layout = findViewById(R.id.select_layout);
@@ -83,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
         deleteBtn = findViewById(R.id.delete);
         slideshowBtn = findViewById(R.id.slideshow);
         checkBox = findViewById(R.id.selectBox);
+        //AutoFitGridLayoutManager layoutManager = new AutoFitGridLayoutManager(this, 500);
+        //recyclerView.setLayoutManager(layoutManager);
         if (checkPermission()){
             getAllImages(false);
         }else {
@@ -92,7 +97,13 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.CAMERA}, 100);
         }
-
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+                getAllImages(false);
+            }
+        });
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -166,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 select_layout.setVisibility(View.GONE);
                 bottom_layout.setVisibility(View.VISIBLE);
+                checkBox.setVisibility(View.GONE);
+                longPress = false;
+                getAllImages(false);
             }
         });
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -264,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                 @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                 @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
-                @SuppressLint("Range") long data = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
+                @SuppressLint("Range") long data = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED));
                 @SuppressLint("Range") float byteImage = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
                 String size = calculateFileSize(byteImage);
                 ImagesModel model = new ImagesModel();
@@ -291,47 +305,54 @@ public class MainActivity extends AppCompatActivity {
         });
 
         obj_adapter = new SelectedImageListAdapter(MainActivity.this, imagesModelArrayList);
-        gridView.setAdapter(obj_adapter);
+        recyclerView.setAdapter(obj_adapter);
 
         obj_adapter.setItemLongClickListener(new ItemLongClickListener() {
             @Override
             public void onItemClick(int position, ImageView imageView) {
                 longPress = true;
                 checkBox.setVisibility(View.VISIBLE);
-                //    imagesModel = imagesModelArrayList.get(position);
-                //  menuSelect = true;
-                // imageView.setVisibility(View.VISIBLE);
-                //modelArrayList.add(imagesModel);
+                imagesModel = imagesModelArrayList.get(position);
+
+                imageView.setVisibility(View.VISIBLE);
+                imagesModel.setCheck(true);
+                modelArrayList.add(imagesModel);
+                obj_adapter.notifyDataSetChanged();
+                checkBox.setVisibility(View.VISIBLE);
+                bottom_layout.setVisibility(View.GONE);
+                select_layout.setVisibility(View.VISIBLE);
             }
         });
 
         obj_adapter.setItemClickListener(new ItemClickListener() {
             @Override
-            public void onItemClick(int position, ImageView imageView,ImageView bigImg) {
+            public void onItemClick(int position, View view) {
+                ImageView bigImg = view.findViewById(R.id.imageView);
+                CardView cardView = view.findViewById(R.id.card);
+                ImageView imageView = view.findViewById(R.id.check);
                 pos = position;
                 imagesModel = imagesModelArrayList.get(position);
                 if(longPress){
-                    RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(350, 350);
-                    bigImg.setLayoutParams(layoutParams);
-                    menuSelect = true;
-                    imageView.setVisibility(View.VISIBLE);
-                    modelArrayList.add(imagesModel);
+                    if (!imagesModel.isCheck()){
+                        menuSelect = true;
+                        imageView.setVisibility(View.VISIBLE);
+                        imagesModel.setCheck(true);
+                        modelArrayList.add(imagesModel);
+                        obj_adapter.notifyDataSetChanged();
+                    }else {
+                        menuSelect = false;
+                        imageView.setVisibility(View.GONE);
+                        imagesModel.setCheck(false);
+                        obj_adapter.notifyDataSetChanged();
+                       // modelArrayList.remove(position);
+                    }
                 }else {
                     Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
-                    //intent.putExtra("imageModel",imagesModel);
                     intent.putExtra("pos",position);
-                    intent.putExtra("list",imagesModelArrayList);
+                //    intent.putExtra("list",imagesModelArrayList);
                     startActivity(intent);
                 }
-              /*  if (!menuSelect){
-                    menuSelect = true;
-                    imageView.setVisibility(View.VISIBLE);
-                    modelArrayList.add(imagesModel);
-                }else {
-                    menuSelect = false;
-                    imageView.setVisibility(View.GONE);
-                    modelArrayList.remove(position);
-                }*/
+
             }
         });
         obj_adapter.notifyDataSetChanged();
@@ -345,12 +366,13 @@ public class MainActivity extends AppCompatActivity {
         float fileSizeInKB = fileSizeInBytes / 1024;
         // Convert the KB to MegaBytes (1 MB = 1024 KBytes)
         float fileSizeInMB = fileSizeInKB / 1024;
-
-        if (fileSizeInKB != 0.0){
+      //  calString = Math.round(fileSizeInKB) + " KB";
+        calString = Math.round(fileSizeInMB) + " MB";
+       /* if (fileSizeInKB < 102400){
             calString = Math.round(fileSizeInKB) + " KB";
         }else {
            calString = Math.round(fileSizeInMB) + " MB";
-        }
+        }*/
         return calString;
     }
     @Override
@@ -376,8 +398,7 @@ public class MainActivity extends AppCompatActivity {
                     refreshGallery(model.getPath());
                 }
 
-                obj_adapter.removeItem(pos);
-                obj_adapter.notifyDataSetChanged();
+                //obj_adapter.removeItem(pos);
                 longPress = false;
                 menuCard.setVisibility(View.GONE);
                 checkBox.setVisibility(View.GONE);
@@ -409,7 +430,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse(file.getAbsolutePath())));
         }
+        imagesModelArrayList.removeAll(modelArrayList);
 
+        //obj_adapter.notifyItemRemoved(pos);
+        //obj_adapter.notifyItemRangeRemoved(pos,imagesModelArrayList.size());
+        obj_adapter.notifyDataSetChanged();
     }
 
 }

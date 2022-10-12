@@ -49,11 +49,11 @@ public class SlideShowImages extends AppCompatActivity {
       //  Collections.shuffle(imagesModelArrayList);
         adapter = new SlideViewPagerAdapter(SlideShowImages.this,modelDataList);
         viewPager.setAdapter(adapter);
-        setupAutoPager();
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                currentPage = position+1;
+                //currentPage = position+1;
+                setupAutoPager(position);
             }
 
             @Override
@@ -70,12 +70,12 @@ public class SlideShowImages extends AppCompatActivity {
     }
 
     //Swiping to next slide automatically
-    private void setupAutoPager() {
+    private void setupAutoPager(int pos) {
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                viewPager.setCurrentItem(currentPage+1);
+                viewPager.setCurrentItem(pos+1);
             }
         },3000);
        /* final Runnable update = new Runnable() {

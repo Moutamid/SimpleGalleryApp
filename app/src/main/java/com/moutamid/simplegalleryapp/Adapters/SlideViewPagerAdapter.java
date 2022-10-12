@@ -1,8 +1,10 @@
 package com.moutamid.simplegalleryapp.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,10 +12,12 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
 import com.moutamid.simplegalleryapp.Listener.LoopingPagerAdapter;
+import com.moutamid.simplegalleryapp.Listener.ViewClickListener;
 import com.moutamid.simplegalleryapp.Model.ImagesModel;
 import com.moutamid.simplegalleryapp.R;
 
@@ -26,6 +30,7 @@ public class SlideViewPagerAdapter extends PagerAdapter implements LoopingPagerA
     Context ctx;
     ArrayList<ImagesModel> modelDataArrayList;
     private ImageView imageView;
+    private ViewClickListener viewClickListener;
 
     public SlideViewPagerAdapter(Context ctx, ArrayList<ImagesModel> modelDataArrayList) {
         this.ctx = ctx;
@@ -50,8 +55,8 @@ public class SlideViewPagerAdapter extends PagerAdapter implements LoopingPagerA
         ImagesModel model = modelDataArrayList.get(position);
         imageView =view.findViewById(R.id.imageView);
         Glide.with(ctx).load(model.getPath()).into(imageView);
-        container.addView(view);
 
+        container.addView(view);
         return view;
     }
 
@@ -61,8 +66,18 @@ public class SlideViewPagerAdapter extends PagerAdapter implements LoopingPagerA
         container.removeView((View) object);
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+    }
+
     @Override
     public int getRealCount() {
         return modelDataArrayList.size();
+    }
+
+    public void setViewClickListener(ViewClickListener viewClickListener){
+        this.viewClickListener = viewClickListener;
     }
 }

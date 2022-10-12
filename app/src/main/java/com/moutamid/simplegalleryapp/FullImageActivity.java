@@ -18,6 +18,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.moutamid.simplegalleryapp.Adapters.SlideViewPagerAdapter;
 import com.moutamid.simplegalleryapp.Listener.LoopingPagerAdapter;
+import com.moutamid.simplegalleryapp.Listener.ViewClickListener;
 import com.moutamid.simplegalleryapp.Model.ImagesModel;
 import com.yalantis.ucrop.UCrop;
 
@@ -50,22 +52,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 public class FullImageActivity extends AppCompatActivity {
 
-    private ImageView menuImg,imageView;
+    private ImageView menuImg;
     private CardView detailsView,menuCard,editCard;
     private LinearLayout bottom_layout,rename_layout;
     private TextView editBtn,zoomBtn,shareBtn,deleteBtn,wallpaperBtn,cropBtn,rotateBtn,renameBtn,detailsBtn;
-    private ImagesModel model;
+    private ImagesModel model = null;
     private TextView nameTxt,typeTxt,sizeTxt,dateTxt,resolutionTxt,pathTxt,okBtn,cancelBtn;
     private EditText renameEdit;
-    private ScaleGestureDetector mScaleGestureDetector;
-    private float mScaleFactor = 1.0f;
-    private boolean zoomImage = false;
+    //private boolean zoomImage = false;
     private boolean menuSelect = false;
     private boolean detailSelect = false;
     private boolean menuEdit = false;
@@ -73,8 +75,11 @@ public class FullImageActivity extends AppCompatActivity {
     private Button applyBtn;
     private ViewPager viewPager;
     int pos = 0;
+    private boolean enableClick = false;
     ArrayList<ImagesModel> modelArrayList = new ArrayList<>();
-    ArrayList<ImagesModel> imagesModelArrayList = new ArrayList<>();
+    //ArrayList<ImagesModel> imagesModelArrayList = new ArrayList<>();
+    private ImageView imageView = null;
+    private ImageView zoomImageView;
     //private ActivityResultLauncher<String> mGetContent;
 
     @Override
@@ -82,7 +87,7 @@ public class FullImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_image);
         menuImg = findViewById(R.id.menu);
-      //  imageView = findViewById(R.id.imageView);
+        //      imageView = findViewById(R.id.imageView);
         editBtn = findViewById(R.id.edit);
         zoomBtn = findViewById(R.id.zoom);
         menuCard = findViewById(R.id.menuCard);
@@ -109,22 +114,74 @@ public class FullImageActivity extends AppCompatActivity {
         renameEdit = findViewById(R.id.editTxt);
         viewPager = findViewById(R.id.viewPager);
         //model = getIntent().getParcelableExtra("imageModel");
-        modelArrayList = getIntent().getParcelableArrayListExtra("list");
+      //  modelArrayList = getIntent().getParcelableArrayListExtra("list");
+        getAllImages();
         pos = getIntent().getIntExtra("pos",0);
-        for (int i = pos ; i < modelArrayList.size(); i++){
-            //if (i < pos || i == pos || i > pos){
-       //         model = modelArrayList.get(i);
-                imagesModelArrayList.add(modelArrayList.get(i));
-            //}
-        }
-
-       // Toast.makeText(this, ""+ modelArrayList.size(), Toast.LENGTH_SHORT).show();
-        SwipeViewPagerAdapter adapter = new SwipeViewPagerAdapter(FullImageActivity.this,
-                imagesModelArrayList);
+       SwipeViewPagerAdapter adapter = new SwipeViewPagerAdapter(FullImageActivity.this,
+                modelArrayList);
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(pos);
+        adapter.setViewClickListener(new ViewClickListener() {
+            @Override
+            public void onItemClick(int position, ImageView image) {
+                if (menuSelect || menuEdit || detailSelect){
+                    menuCard.setVisibility(View.GONE);
+                    detailsView.setVisibility(View.GONE);
+                    editCard.setVisibility(View.GONE);
+                    menuImg.setVisibility(View.VISIBLE);
+                }else {
+                    imageView = image;
+                    model = modelArrayList.get(position);
+                  //  Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
+                    nameTxt.setText("Name: " + model.getName());
+                    typeTxt.setText("Type: " + model.getType());
+                    sizeTxt.setText("Size: " + model.getSize());
+                    String resolution = getDropboxIMGSize(Uri.parse(model.getPath()));
+                    resolutionTxt.setText("Resolution: " + resolution);
+
+                    Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+                    cal.setTimeInMillis( model.getDate());
+                    String date = DateFormat.format("dd-MM-yyyy hh:mm aa", cal).toString();
+                    dateTxt.setText("Date: " + date);
+                    pathTxt.setText("Path: " + model.getPath());
+                    //   Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
+                    renameEdit.setText(model.getName());
+                //    Toast.makeText(FullImageActivity.this, ""+model.getName(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                model = modelArrayList.get(position);
+
+                nameTxt.setText("Name: " + model.getName());
+                typeTxt.setText("Type: " + model.getType());
+                sizeTxt.setText("Size: " + model.getSize());
+                String resolution = getDropboxIMGSize(Uri.parse(model.getPath()));
+                resolutionTxt.setText("Resolution: " + resolution);
+
+                Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+                cal.setTimeInMillis( model.getDate());
+                String date = DateFormat.format("dd-MM-yyyy hh:mm aa", cal).toString();
+                dateTxt.setText("Date: " + date);
+                pathTxt.setText("Path: " + model.getPath());
+                //   Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
+                renameEdit.setText(model.getName());
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                model = modelArrayList.get(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         adapter.notifyDataSetChanged();
 
-        imageView = adapter.image;
 
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,33 +199,39 @@ public class FullImageActivity extends AppCompatActivity {
                 }
             }
         });
-
         zoomBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                zoomImage = true;
-                mScaleGestureDetector = new ScaleGestureDetector(FullImageActivity.this, new ScaleListener());
+                //zoomImage = true;
+                if (model!=null) {
+                    Intent intent = new Intent(FullImageActivity.this, ZoomImageActivity.class);
+                    intent.putExtra("image", model.getPath());
+                    startActivity(intent);
+                }
             }
         });
+
 
         rotateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               imageView.setRotation(imageView.getRotation() + 90);
+                if (imageView != null) {
+                    imageView.setRotation(imageView.getRotation() + 90);
 
-                Bitmap bitmap = Bitmap.createBitmap(imageView.getWidth(),imageView.getHeight(), Bitmap.Config.RGB_565);
-                Canvas canvas = new Canvas(bitmap);
-                imageView.draw(canvas);
+                    Bitmap bitmap = Bitmap.createBitmap(imageView.getWidth(), imageView.getHeight(), Bitmap.Config.RGB_565);
+                    Canvas canvas = new Canvas(bitmap);
+                    imageView.draw(canvas);
 
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                rotatedBitmap =Bitmap.createBitmap(bitmap,imageView.getLeft(), imageView.getTop(),
-                        imageView.getWidth()-20,
-                        imageView.getHeight()-100,matrix,true);
-                bitmap.recycle();
-                File filePathLocal = new File(model.getPath());
-                saveFile(rotatedBitmap, filePathLocal);
-              //  applyBtn.setVisibility(View.VISIBLE);
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    rotatedBitmap = Bitmap.createBitmap(bitmap, imageView.getLeft(), imageView.getTop(),
+                            imageView.getWidth() - 20,
+                            imageView.getHeight() - 100, matrix, true);
+                    bitmap.recycle();
+                    File filePathLocal = new File(model.getPath());
+                    saveFile(rotatedBitmap, filePathLocal);
+                }
+                //  applyBtn.setVisibility(View.VISIBLE);
             }
         });
 
@@ -258,7 +321,9 @@ public class FullImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 menuCard.setVisibility(View.GONE);
-                showDeleteDialig(model.getPath());
+                if (model != null) {
+                    showDeleteDialig(model.getPath());
+                }
                 //Toast.makeText(SelectImageActivity.this,imagesModel.getPath(),Toast.LENGTH_LONG).show();
             }
         });
@@ -273,8 +338,10 @@ public class FullImageActivity extends AppCompatActivity {
         wallpaperBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setWallpaperImage();
-                menuCard.setVisibility(View.GONE);
+                if (model != null) {
+                    setWallpaperImage();
+                    menuCard.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -312,8 +379,48 @@ public class FullImageActivity extends AppCompatActivity {
         }
     }
 
+    private void getAllImages() {
+        modelArrayList.clear();
+        ContentResolver contentResolver = getContentResolver();
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+
+        //looping through all rows and adding to list
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+//               String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DURATION));
+                @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
+                @SuppressLint("Range") long data = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED));
+                @SuppressLint("Range") float byteImage = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
+                //@SuppressLint("Range") String resolution = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.RESOLUTION));
+                String size = calculateFileSize(byteImage);
+                ImagesModel model = new ImagesModel();
+                model.setName(name);
+                model.setPath(path);
+                model.setType(type);
+                model.setDate(data);
+                model.setCheck(false);
+                //model.setResolution(resolution);
+                model.setSize(size);
+                modelArrayList.add(model);
+            } while (cursor.moveToNext());
+        }
+
+        Collections.sort(modelArrayList, new Comparator<ImagesModel>() {
+            @Override
+            public int compare(ImagesModel imagesModel, ImagesModel t1) {
+                return Long.compare(t1.getDate(),imagesModel.getDate());
+            }
+        });
+
+    }
+
     private void renameFileName(String rename) {
-        File file = new File(model.getPath());
+        if (imageView != null) {
+            File file = new File(model.getPath());
       /*  int index = file.getPath().lastIndexOf("/");
         String path = file.getPath().substring(0, index);
         File newname = new File(path + "/");
@@ -321,34 +428,35 @@ public class FullImageActivity extends AppCompatActivity {
             success = newname.mkdir();
         }*/
 
-        imageView.setDrawingCacheEnabled(true);
-        imageView.buildDrawingCache();
-        imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        //Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-        Bitmap bitmap = imageView.getDrawingCache();
+            imageView.setDrawingCacheEnabled(true);
+            imageView.buildDrawingCache();
+            imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+            //Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            Bitmap bitmap = imageView.getDrawingCache();
 
-        String imagePath = MediaStore.Images.Media.insertImage(
-                getContentResolver(),
-                bitmap,
-                rename,
-                "demo_image"
-        );
+            String imagePath = MediaStore.Images.Media.insertImage(
+                    getContentResolver(),
+                    bitmap,
+                    rename,
+                    "demo_image"
+            );
 
-        Uri uri = Uri.parse(imagePath);
-        ContentResolver resolver = getContentResolver();
-        resolver.delete(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA +
-                        "=?", new String[] { file.getAbsolutePath() });
+            Uri uri = Uri.parse(imagePath);
+            ContentResolver resolver = getContentResolver();
+            resolver.delete(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Images.Media.DATA +
+                            "=?", new String[]{file.getAbsolutePath()});
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Intent intent= new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(file));
-            sendBroadcast(intent);
-        } else {
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse(file.getAbsolutePath())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                intent.setData(Uri.fromFile(file));
+                sendBroadcast(intent);
+            } else {
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse(file.getAbsolutePath())));
+            }
+
+            Toast.makeText(FullImageActivity.this, "Saving Image..." + uri.getPath(), Toast.LENGTH_LONG).show();
         }
-
-        Toast.makeText(FullImageActivity.this,"Saving Image...", Toast.LENGTH_LONG).show();
     }
 
 
@@ -356,7 +464,7 @@ public class FullImageActivity extends AppCompatActivity {
         File file =  new File(model.getPath());
 
         String des = new StringBuilder(UUID.randomUUID().toString()).append(".jpg").toString();
-       // UCrop.of(Uri.fromFile(file),Uri.fromFile(file)).start(FullImageActivity.this);
+        // UCrop.of(Uri.fromFile(file),Uri.fromFile(file)).start(FullImageActivity.this);
         UCrop.Options options = new UCrop.Options();
 
         UCrop.of(Uri.fromFile(file),Uri.fromFile(file))
@@ -372,18 +480,20 @@ public class FullImageActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             Uri imageUri = UCrop.getOutput(data);
-            imageView.setImageURI(imageUri);
+            if (imageView != null) {
+                imageView.setImageURI(imageUri);
 
-            imageView.setDrawingCacheEnabled(true);
-            imageView.buildDrawingCache();
-            imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-            Bitmap bitmap = imageView.getDrawingCache();
+                imageView.setDrawingCacheEnabled(true);
+                imageView.buildDrawingCache();
+                imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+                Bitmap bitmap = imageView.getDrawingCache();
 
-            Bitmap crop = Bitmap.createBitmap(bitmap,0, 0, bitmap.getWidth(),
-                    bitmap.getHeight());
-            bitmap.recycle();
-            File file = new File(model.getPath());
-            saveFile(crop,file);
+                Bitmap crop = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                        bitmap.getHeight());
+                bitmap.recycle();
+                File file = new File(model.getPath());
+                saveFile(crop, file);
+            }
         }else if (requestCode == UCrop.RESULT_ERROR){
             Log.d("Error",""+UCrop.getError(data));
         }
@@ -465,43 +575,40 @@ public class FullImageActivity extends AppCompatActivity {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse(file.getAbsolutePath())));
         }
 
-        Toast.makeText(FullImageActivity.this, "Image Saved Successfully", Toast.LENGTH_LONG).show();
+        Toast.makeText(FullImageActivity.this, "Image Saved Successfully" + uri.getPath(), Toast.LENGTH_LONG).show();
 
     }
 
+    String calString;
+    public String calculateFileSize(float fileSizeInBytes) {
+        //String filepathstr=filepath.toString();
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (zoomImage) {
-            mScaleGestureDetector.onTouchEvent(event);
+        float fileSizeInKB = fileSizeInBytes / 1024;
+        // Convert the KB to MegaBytes (1 MB = 1024 KBytes)
+        float fileSizeInMB = fileSizeInKB / 1024;
+        //  calString = Math.round(fileSizeInKB) + " KB";
+      //  calString = Math.round(fileSizeInMB) + " MB";
+        if (fileSizeInKB < 1024){
+            calString = Math.round(fileSizeInKB) + " KB";
+        }else {
+           calString = Math.round(fileSizeInMB) + " MB";
         }
-        return true;
-    }
-
-    @SuppressLint("NewApi")
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector scaleGestureDetector){
-            mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            mScaleFactor = Math.max(0.1f,
-                    Math.min(mScaleFactor, 10.0f));
-            imageView.setScaleX(mScaleFactor);
-            imageView.setScaleY(mScaleFactor);
-            return true;
-        }
+        return calString;
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-  //      startActivity(new Intent(FullImageActivity.this,MainActivity.class));
+       // startActivity(new Intent(FullImageActivity.this,MainActivity.class));
         finish();
     }
+
     public class SwipeViewPagerAdapter extends PagerAdapter implements LoopingPagerAdapter {
 
         Context ctx;
         ArrayList<ImagesModel> modelDataArrayList;
         public ImageView image;
+        private ViewClickListener viewClickListener;
 
         public SwipeViewPagerAdapter(Context ctx, ArrayList<ImagesModel> modelDataArrayList) {
             this.ctx = ctx;
@@ -523,43 +630,41 @@ public class FullImageActivity extends AppCompatActivity {
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             LayoutInflater layoutInflater= (LayoutInflater) ctx.getSystemService(ctx.LAYOUT_INFLATER_SERVICE);
             View view=layoutInflater.inflate(R.layout.slide_screen,container,false);
-            model = modelDataArrayList.get(position);
+            ImagesModel model = modelDataArrayList.get(position);
             image =view.findViewById(R.id.imageView);
             Glide.with(ctx).load(model.getPath()).into(image);
 
-            nameTxt.setText("Name: " + model.getName());
-            typeTxt.setText("Type: " + model.getType());
-            sizeTxt.setText("Size: " + model.getSize());
-            String resolution = getDropboxIMGSize(Uri.parse(model.getPath()));
-            resolutionTxt.setText("Resolution: " + resolution);
-
-            Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-            cal.setTimeInMillis( model.getDate());
-            String date = DateFormat.format("dd-MM-yyyy hh:mm aa", cal).toString();
-            dateTxt.setText("Date: " + date);
-            pathTxt.setText("Path: " + model.getPath());
-            //   Glide.with(FullImageActivity.this).load(model.getPath()).into(imageView);
-            renameEdit.setText(model.getName());
             image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (menuSelect || menuEdit || detailSelect){
-                        menuCard.setVisibility(View.GONE);
-                        detailsView.setVisibility(View.GONE);
-                        editCard.setVisibility(View.GONE);
-                        menuImg.setVisibility(View.VISIBLE);
+                    if (viewClickListener != null){
+                        viewClickListener.onItemClick(position,image);
                     }
                 }
             });
+
+
+
             container.addView(view);
 
             return view;
+        }
+
+        public void setViewClickListener(ViewClickListener viewClickListener){
+            this.viewClickListener = viewClickListener;
         }
 
 
         @Override
         public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             container.removeView((View) object);
+        }
+
+
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
         }
 
         @Override

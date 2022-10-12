@@ -200,22 +200,6 @@ public class SelectImageActivity extends AppCompatActivity {
             }
         });
 
-        obj_adapter = new SelectedImageListAdapter(SelectImageActivity.this, imagesModelArrayList);
-        gridView.setAdapter(obj_adapter);
-
-        obj_adapter.setItemLongClickListener(new ItemLongClickListener() {
-            @Override
-            public void onItemClick(int position, ImageView imageView) {
-                longPress = true;
-            //    imagesModel = imagesModelArrayList.get(position);
-              //  menuSelect = true;
-               // imageView.setVisibility(View.VISIBLE);
-                //modelArrayList.add(imagesModel);
-            }
-        });
-
-
-        obj_adapter.notifyDataSetChanged();
     }
 
     @Override

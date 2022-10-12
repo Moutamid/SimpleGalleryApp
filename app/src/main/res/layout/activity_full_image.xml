@@ -14,131 +14,124 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-
-       <!-- <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitCenter" />-->
-
-
         <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/viewPager">
+            android:layout_height="match_parent">
+
         </androidx.viewpager.widget.ViewPager>
 
+
         <androidx.cardview.widget.CardView
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardElevation="8dp"
-            android:id="@+id/details"
-            android:visibility="gone"
-            android:layout_centerInParent="true">
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardElevation="8dp"
+                android:id="@+id/details"
+                android:visibility="gone"
+                android:layout_centerInParent="true">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp"
-                android:gravity="center_vertical">
-
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Details"
-                    android:textColor="@android:color/black"
-                    android:textSize="18sp"
-                    android:gravity="center"
-                    android:textStyle="bold"/>
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/name"
-                    android:layout_marginTop="8dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/type"
-                    android:layout_marginTop="8dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/size"
-                    android:layout_marginTop="8dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/date"
-                    android:layout_marginTop="8dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/resolution"
-                    android:layout_marginTop="8dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/path"
-                    android:layout_marginTop="8dp"/>
-              </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Details"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        android:gravity="center"
+                        android:textStyle="bold"/>
 
-        </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/name"
+                        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/type"
+                        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/size"
+                        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/date"
+                        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/resolution"
+                        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/path"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="200dp"
+                android:layout_height="120dp"
+                app:cardCornerRadius="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardElevation="8dp"
+                android:id="@+id/menuCard"
+                android:visibility="gone"
+                android:layout_centerInParent="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1. Details"
+                        android:id="@+id/detail"
+                        android:textSize="15sp"
+                        android:textColor="@color/black"/>
 
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="200dp"
-            android:layout_height="120dp"
-            app:cardCornerRadius="10dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardElevation="8dp"
-            android:id="@+id/menuCard"
-            android:visibility="gone"
-            android:layout_centerInParent="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2. Delete"
+                        android:id="@+id/delete"
+                        android:layout_marginTop="8dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/black"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3. Set as wallpaper"
+                        android:id="@+id/wallpaper"
+                        android:layout_marginTop="10dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/black"/>
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1. Details"
-                    android:id="@+id/detail"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"/>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2. Delete"
-                    android:id="@+id/delete"
-                    android:layout_marginTop="8dp"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3. Set as wallpaper"
-                    android:id="@+id/wallpaper"
-                    android:layout_marginTop="10dp"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"/>
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:layout_width="200dp"
@@ -219,20 +212,21 @@
         <LinearLayout
             android:id="@+id/bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_centerVertical="true"
             android:alpha="0.5"
             android:background="@android:color/darker_gray"
             android:orientation="horizontal"
-            android:padding="20dp"
             android:visibility="visible">
 
             <TextView
                 android:id="@+id/edit"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="Edit"
+                android:gravity="center"
+                android:padding="8dp"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
@@ -244,8 +238,10 @@
             <TextView
                 android:id="@+id/zoom"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="Zoom"
+                android:gravity="center"
+                android:padding="8dp"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
@@ -259,6 +255,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Share"
+                android:gravity="center"
+                android:padding="8dp"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
@@ -303,20 +301,21 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_centerVertical="true"
                 android:alpha="0.5"
                 android:visibility="visible"
                 android:background="@android:color/darker_gray"
-                android:orientation="horizontal"
-                android:padding="20dp">
+                android:orientation="horizontal">
 
 
                 <TextView
                     android:id="@+id/cancel"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="Cancel"
+                    android:padding="8dp"
+                    android:gravity="center"
                     android:textColor="@android:color/white"
                     android:textSize="20sp" />
 
@@ -328,8 +327,10 @@
                 <TextView
                     android:id="@+id/ok"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="Rename"
+                    android:padding="8dp"
+                    android:gravity="center"
                     android:textColor="@android:color/white"
                     android:textSize="20sp" />
 

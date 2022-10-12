@@ -8,11 +8,13 @@
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/drawable/image_background.xml" value="0.169" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_crop_image.xml" value="0.1" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_edit_image.xml" value="0.12273550724637682" />
-        <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_full_image.xml" value="0.12273550724637682" />
+        <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_full_image.xml" value="0.18" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_main.xml" value="0.12273550724637682" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_select_image.xml" value="0.12273550724637682" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_slide_show_images.xml" value="0.12273550724637682" />
+        <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/activity_zoom_image.xml" value="0.12273550724637682" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/custom_layout.xml" value="0.14266304347826086" />
+        <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/full_image_slide_layout.xml" value="0.12273550724637682" />
         <entry key="..\:/New folder/Bridgetlinx/SimpleGalleryApp/app/src/main/res/layout/slide_screen.xml" value="0.12273550724637682" />
       </map>
     </option>
