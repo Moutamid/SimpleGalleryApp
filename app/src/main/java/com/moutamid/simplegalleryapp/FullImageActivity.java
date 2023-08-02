@@ -77,7 +77,7 @@ public class FullImageActivity extends AppCompatActivity {
     int pos = 0;
     private boolean enableClick = false;
     ArrayList<ImagesModel> modelArrayList = new ArrayList<>();
-    //ArrayList<ImagesModel> imagesModelArrayList = new ArrayList<>();
+
     private ImageView imageView = null;
     private ImageView zoomImageView;
     //private ActivityResultLauncher<String> mGetContent;
